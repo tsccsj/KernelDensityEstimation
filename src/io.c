@@ -1,6 +1,9 @@
 #include <stdio.h>
-#include <cstdlib>
-#include "io.h"
+#include <stdlib.h>
+#include <gdal.h>
+#include <ogr_srs_api.h>
+#include <ogr_api.h>
+#include <cpl_conv.h>
 
 int getNumPoints(FILE * file)
 {
@@ -84,4 +87,53 @@ void outputASC(FILE * file, float * outputRaster, int nRow, int nCol, float xMin
 		fprintf(file, "\n");
 	}
 
+}
+
+void writeGeoTiffF(char * fileName, float * result, int nRow, int nCol, float xMin, float yMax, float cellSize, int epsgCode)
+{
+	
+	GDALAllRegister();
+	OGRRegisterAll();
+
+	GDALDatasetH hDstDS;
+	GDALDriverH hDriver;
+	GDALRasterBandH hBand;
+	OGRSpatialReferenceH hSRS;
+	char *pszSRS_WKT = NULL;
+	double adfGeoTransform[6];
+
+	char *papszOptions[] = {"COMPRESS=LZW",NULL};
+	const char *pszFormat="GTiff";
+
+	if(NULL == (hDriver = GDALGetDriverByName(pszFormat)))
+	{
+		printf("ERROR: hDriver is null cannot output using GDAL\n");
+		exit(1);
+	}
+	
+	hDstDS = GDALCreate(hDriver, fileName, nCol, nRow, 1, GDT_Float32, papszOptions);
+
+	adfGeoTransform[0] = xMin;
+	adfGeoTransform[1] = cellSize;
+	adfGeoTransform[2] = 0;
+	adfGeoTransform[3] = yMax;
+	adfGeoTransform[4] = 0;
+	adfGeoTransform[5] = -cellSize;
+
+	GDALSetGeoTransform(hDstDS,adfGeoTransform);
+
+	hSRS=OSRNewSpatialReference(NULL);
+	OSRImportFromEPSG(hSRS,epsgCode);
+	OSRExportToWkt(hSRS,&pszSRS_WKT);
+	GDALSetProjection(hDstDS,pszSRS_WKT);
+	OSRDestroySpatialReference(hSRS);
+	CPLFree(pszSRS_WKT);
+
+	hBand=GDALGetRasterBand(hDstDS,1);
+	GDALSetRasterNoDataValue(hBand,-1);
+	GDALRasterIO(hBand, GF_Write, 0, 0, nCol, nRow, result, nCol, nRow, GDT_Float32, 0, 0 );
+	
+	GDALClose(hDstDS);
+
+	return;
 }

@@ -18,6 +18,7 @@ int main(int argc, char ** argv)
 
 	float xMin, yMin, xMax, yMax, cellSize, bandwidth;
 	int nRow, nCol;
+	int epsgCode = 900913;
 
 	xMin = atof(argv[3]);
 	yMin = atof(argv[4]);
@@ -136,15 +137,16 @@ int main(int argc, char ** argv)
 	free(yCor);
 
 
-	if(NULL == (file = fopen(argv[2], "w")))
-	{
-		printf("ERROR: Can't open the output file %s\n", argv[2]);
-		exit(1);
-	}
+//	if(NULL == (file = fopen(argv[2], "w")))
+//	{
+//		printf("ERROR: Can't open the output file %s\n", argv[2]);
+//		exit(1);
+//	}
 
-	outputASC(file, density, nRow, nCol, xMin, yMin, cellSize);
+//	outputASC(file, density, nRow, nCol, xMin, yMin, cellSize);
+//	fclose(file);
+	writeGeoTiffF(argv[2], density, nRow, nCol, xMin, yMax, cellSize, epsgCode);
 
-	fclose(file);
 
 	free(density);
 	return 0;
