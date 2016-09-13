@@ -10,7 +10,7 @@ int main(int argc, char ** argv)
 {
 	if(argc != 9)
 	{
-		printf("ERROR: SEQKDE inputFile outputFile xMin yMin xMax yMax cellSize bandwidth\n");
+		printf("ERROR: incorrect number of input parameters\n To run the code: KDE [inputFile] [outputFile] [xMin] [yMin] [xMax] [yMax] [cellSize] [bandwidth]\n");
 		exit(1);
 	}
 
