@@ -77,7 +77,7 @@ void outputASC(FILE * file, float * outputRaster, int nRow, int nCol, float xMin
 	fprintf(file, "xllcorner\t%f\n", xMin);
 	fprintf(file, "yllcorner\t%f\n", yMin);
 	fprintf(file, "cellsize\t%f\n", cellSize);
-	fprintf(file, "NODATA_value\t-9999\n");
+	fprintf(file, "NODATA_value\t0\n");
 	for(int i = 0; i < nRow; i++)
 	{
 		for(int j = 0; j < nCol; j++)
@@ -130,7 +130,7 @@ void writeGeoTiffF(char * fileName, float * result, int nRow, int nCol, float xM
 	CPLFree(pszSRS_WKT);
 
 	hBand=GDALGetRasterBand(hDstDS,1);
-	GDALSetRasterNoDataValue(hBand,-1);
+	GDALSetRasterNoDataValue(hBand,0);
 	GDALRasterIO(hBand, GF_Write, 0, 0, nCol, nRow, result, nCol, nRow, GDT_Float32, 0, 0 );
 	
 	GDALClose(hDstDS);
