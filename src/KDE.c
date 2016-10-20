@@ -136,15 +136,11 @@ int main(int argc, char ** argv)
 	free(xCor);
 	free(yCor);
 
+	for(int i = 0; i < nRow * nCol; i++) {
+		density[i] = density[i] * 2 * cellSize * cellSize / (M_PI * bandwidth2);
+	}
 
-//	if(NULL == (file = fopen(argv[2], "w")))
-//	{
-//		printf("ERROR: Can't open the output file %s\n", argv[2]);
-//		exit(1);
-//	}
 
-//	outputASC(file, density, nRow, nCol, xMin, yMin, cellSize);
-//	fclose(file);
 	writeGeoTiffF(argv[2], density, nRow, nCol, xMin, yMax, cellSize, epsgCode);
 
 
