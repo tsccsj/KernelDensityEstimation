@@ -1,10 +1,13 @@
-#ifndef STDIO
-#define STDIO
-#include<stdio.h>
-#endif
+/**
+ * KDE.c
+ * Author: Yizhao Gao <yizhaotsccsj@gmail.com> 
+ */ 
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "io.h"
+#include <sys/time.h>
 
 int main(int argc, char ** argv)
 {
@@ -53,6 +56,12 @@ int main(int argc, char ** argv)
 	float cellX;
 	float cellY;
 
+	struct timeval tBegin;
+	struct timeval tIO;
+	struct timeval tEnd;
+		
+	gettimeofday(&tBegin, NULL);
+
 	if(NULL == (density = (float *)malloc(sizeof(float) * nCol * nRow)))
 	{
 		printf("ERROR: Out of Memory at line %d at file %s\n", __LINE__, __FILE__);
@@ -87,6 +96,8 @@ int main(int argc, char ** argv)
 	readFile(file, xCor, yCor, nPoints);
 
 	fclose(file);
+
+	gettimeofday(&tIO, NULL);
 
 	for(int k = 0; k < nPoints; k++)
 	{
@@ -137,12 +148,18 @@ int main(int argc, char ** argv)
 	free(yCor);
 
 	for(int i = 0; i < nRow * nCol; i++) {
-		density[i] = density[i] * 2 * cellSize * cellSize / (M_PI * bandwidth2);
+		density[i] = density[i] * 2 * cellSize * cellSize / (M_PI * bandwidth2 * nPoints) * 1000000000;
 	}
 
+	gettimeofday(&tEnd, NULL);
 
 	writeGeoTiffF(argv[2], density, nRow, nCol, xMin, yMax, cellSize, epsgCode);
 
+
+	printf("Time - Input:\t%lfms\n", ((&tIO)->tv_sec - (&tBegin)->tv_sec) * 1000 + (double)((&tIO)->tv_usec - (&tBegin)->tv_usec) / 1000);
+	printf("Time - Compu:\t%lfms\n", ((&tEnd)->tv_sec - (&tIO)->tv_sec) * 1000 + (double)((&tEnd)->tv_usec - (&tIO)->tv_usec) / 1000);
+
+	
 
 	free(density);
 	return 0;
